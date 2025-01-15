@@ -18,7 +18,7 @@ function App() {
         formData.append("image", image);
 
         try {
-            const response = await axios.post("http://localhost:5000/process-image", formData, {
+            const response = await axios.post("https://controlback-pg9c.onrender.com/process-image", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
