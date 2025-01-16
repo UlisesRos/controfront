@@ -1,61 +1,112 @@
 import React, { useState } from "react";
-import axios from "axios";
-import '../src/App.css'
 
 function App() {
-    const [image, setImage] = useState(null);
-    const [lines, setLines] = useState([]);
-    const [total, setTotal] = useState(0);
+  const [step, setStep] = useState(1); // Controla el paso actual
+  const [unidades, setUnidades] = useState([]); // Almacena las unidades
+  const [unidadesConsumo, setUnidadesConsumo] = useState([]); // Almacena las unidades de consumo
+  const [inputValue, setInputValue] = useState(""); // Maneja el valor del input
+  const [results, setResults] = useState([]); // Resultados de las multiplicaciones
+  const [total, setTotal] = useState(0); // Total final
 
-    const handleImageChange = (e) => {
-        setImage(e.target.files[0]);
-    };
+  // Maneja el cambio de valor en el input
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  // Agrega un número a la lista actual
+  const handleAddNumber = () => {
+    const number = parseFloat(inputValue);
+    if (!isNaN(number)) {
+      if (step === 1) {
+        setUnidades([...unidades, number]);
+      } else if (step === 2) {
+        setUnidadesConsumo([...unidadesConsumo, number]);
+      }
+      setInputValue(""); // Limpia el input
+    } else {
+      alert("Por favor ingresa un número válido.");
+    }
+  };
 
-        const formData = new FormData();
-        formData.append("image", image);
+  // Realiza los cálculos de las multiplicaciones y el total
+  const handleCalculate = () => {
+    if (unidades.length !== unidadesConsumo.length) {
+      alert("Ambas listas deben tener la misma cantidad de elementos.");
+      return;
+    }
 
-        try {
-            const response = await axios.post("https://controlback-pg9c.onrender.com/process-image", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+    const calcResults = unidades.map((unidad, index) => {
+      const consumo = unidadesConsumo[index];
+      return { unidad, consumo, resultado: unidad * consumo };
+    });
 
-            setLines(response.data.lines);
-            setTotal(response.data.total);
-        } catch (error) {
-            console.error("Error al procesar la imagen:", error);
-        }
-    };
+    const calcTotal = calcResults.reduce((acc, curr) => acc + curr.resultado, 0);
 
-    return (
-        <div className='div1'>
-            <h1>Control Carrefour</h1>
-            <form onSubmit={handleSubmit}>
-                <input type="file" onChange={handleImageChange} />
-                <button type="submit">Procesar Imagen</button>
-            </form>
+    setResults(calcResults);
+    setTotal(calcTotal);
+    setStep(3); // Ir al paso de resultados
+  };
 
-            {lines.length > 0 && (
-                <div>
-                    <h2>Detalles de las líneas:</h2>
-                    <ul>
-                        {lines.map((lineData, index) => (
-                            <li key={index}>
-                                <strong>Línea {lineData.line}:</strong> Números detectados = {" "}
-                                {lineData.numbers.join(" x ")}  
-                            </li>
-                        ))}
-                    </ul>
-                    <h3>Total acumulado: {total}</h3>
-                </div>
-            )}
+  return (
+    <div style={{ padding: "20px", textAlign: "center" }}>
+      <h1>Calculadora de Consumo</h1>
+      {step === 1 && (
+        <div>
+          <h2>Ingresar Unidades</h2>
+          <input
+            type="number"
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Ingresa una unidad"
+          />
+          <button onClick={handleAddNumber}>Agregar Unidad</button>
+          <div>
+            <h3>Unidades ingresadas:</h3>
+            <p>{unidades.join(", ") || "Ninguna unidad agregada aún."}</p>
+          </div>
+          <button onClick={() => setStep(2)} disabled={unidades.length === 0}>
+            Continuar con Unidades de Consumo
+          </button>
         </div>
-    );
+      )}
+
+      {step === 2 && (
+        <div>
+          <h2>Ingresar Unidades de Consumo</h2>
+          <input
+            type="number"
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Ingresa una unidad de consumo"
+          />
+          <button onClick={handleAddNumber}>Agregar Unidad de Consumo</button>
+          <div>
+            <h3>Unidades de Consumo ingresadas:</h3>
+            <p>{unidadesConsumo.join(", ") || "Ninguna unidad de consumo agregada aún."}</p>
+          </div>
+          <button
+            onClick={handleCalculate}
+            disabled={unidadesConsumo.length === 0 || unidadesConsumo.length !== unidades.length}
+          >
+            Calcular Resultados
+          </button>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div>
+          <h2>Resultados</h2>
+          {results.map((res, index) => (
+            <p key={index}>
+              {res.unidad} × {res.consumo} = {res.resultado}
+            </p>
+          ))}
+          <h3>Total: {total}</h3>
+          <button onClick={() => window.location.reload()}>Reiniciar</button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default App;
-
