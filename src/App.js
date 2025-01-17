@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 function App() {
   const [step, setStep] = useState(1); // Controla el paso actual (1: ingreso intercalado, 2: resultados)
@@ -8,6 +8,7 @@ function App() {
   const [isAddingUnidad, setIsAddingUnidad] = useState(true); // Alterna entre unidad y unidad de consumo
   const [results, setResults] = useState([]); // Resultados de las multiplicaciones
   const [total, setTotal] = useState(0); // Total final
+  const inputRef = useRef(null); // Referencia al input
 
   // Maneja el cambio de valor en el input
   const handleInputChange = (e) => {
@@ -25,6 +26,7 @@ function App() {
       }
       setInputValue(""); // Limpia el input
       setIsAddingUnidad(!isAddingUnidad); // Alterna entre unidad y unidad de consumo
+      inputRef.current.focus(); // Devuelve el foco al input
     } else {
       alert("Por favor ingresa un número válido.");
     }
@@ -66,6 +68,7 @@ function App() {
             {isAddingUnidad ? "Ingresar Unidad" : "Ingresar Unidad de Consumo"}
           </h2>
           <input
+            ref={inputRef} // Asocia el input con la referencia
             type="number"
             inputMode="numeric"
             value={inputValue}
