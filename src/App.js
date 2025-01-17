@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 
 function App() {
-  const [step, setStep] = useState(1); // Controla el paso actual (1: ingreso intercalado, 2: resultados)
+  const [step, setStep] = useState(1); // Controla el paso actual
   const [unidades, setUnidades] = useState([]); // Almacena las unidades
   const [unidadesConsumo, setUnidadesConsumo] = useState([]); // Almacena las unidades de consumo
   const [inputValue, setInputValue] = useState(""); // Maneja el valor del input
@@ -15,7 +15,7 @@ function App() {
     setInputValue(e.target.value);
   };
 
-  // Agrega el número dependiendo del contexto (unidad o unidad de consumo)
+  // Agrega el número dependiendo del contexto
   const handleAddNumber = () => {
     const number = parseFloat(inputValue) || (isAddingUnidad ? 0 : 1); // 0 para unidades, 1 para unidades de consumo si está vacío
     if (!isNaN(number)) {
@@ -68,12 +68,12 @@ function App() {
             {isAddingUnidad ? "Ingresar Unidad" : "Ingresar Unidad de Consumo"}
           </h2>
           <input
-            ref={inputRef} // Asocia el input con la referencia
+            ref={inputRef}
             type="number"
-            inputMode="numeric"
+            inputMode="numeric" // Configura el teclado numérico
             value={inputValue}
             onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
+            onKeyPress={handleKeyPress} // Detecta la tecla Enter
             placeholder={`Ingresa una ${
               isAddingUnidad ? "unidad" : "unidad de consumo"
             }`}
